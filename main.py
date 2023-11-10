@@ -5,7 +5,7 @@ from enum import Enum
 
 from settings import *
 from level import Level
-
+#NEXT TO DO IS IMPORTING ALL ELEMENTS AND 3D EFFECTS
 class Game:
     def __init__(self) -> None:
         pygame.init()
