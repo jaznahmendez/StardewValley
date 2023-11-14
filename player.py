@@ -50,7 +50,7 @@ class Player(pygame.sprite.Sprite):
 						   'right_axe':[],'left_axe':[],'up_axe':[],'down_axe':[],
 						   'right_water':[],'left_water':[],'up_water':[],'down_water':[]}
         for animation in self.animations.keys():
-            path = './ASSETS/player/graphics/character/' + animation
+            path = './NEW_ASSETS/player/graphics/character/' + animation
             self.animations[animation] = import_folder(path)
 
     def animate(self, dt):

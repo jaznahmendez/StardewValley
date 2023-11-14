@@ -14,7 +14,7 @@ class Level:
         self.overlay = Overlay(self.player)
 
     def setup(self):
-        Generic((0, 0), pygame.image.load('./ASSETS/player/graphics/world/ground.png').convert_alpha(), self.all_sprites, LAYERS['ground'])
+        Generic((0, 0), pygame.image.load('./NEW_ASSETS/player/graphics/world/ground.png').convert_alpha(), self.all_sprites, LAYERS['ground'])
         self.player = Player((640, 360), self.all_sprites)
 
     def run(self, dt):
