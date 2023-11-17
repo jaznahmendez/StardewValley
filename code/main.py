@@ -5,7 +5,12 @@ from enum import Enum
 
 from settings import *
 from level import Level
-#NEXT TO DO IS IMPORTING ALL ELEMENTS AND 3D EFFECTS
+#NEXT TO DO IS WORKING ON THE TREES
+#OTHER TO DOs:
+#RESIZE TREEES
+#RESIZE TREES COLLISION SIZES
+#RESIZE FLOWERS
+#CHANGE GROUND TO CANDYS
 class Game:
     def __init__(self) -> None:
         pygame.init()
