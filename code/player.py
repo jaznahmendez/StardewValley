@@ -151,8 +151,7 @@ class Player(pygame.sprite.Sprite):
         self.pos.y += self.direction.y * self.speed * dt
         self.hitbox.centery = round(self.pos.y)
         self.rect.centery = self.hitbox.centery
-        self.collision('vertical')
-        
+        self.collision('vertical')     
 
     def update(self, dt):
         self.input()
