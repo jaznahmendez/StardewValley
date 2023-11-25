@@ -3,7 +3,8 @@ import pygame
 from settings import *
 from support import *
 from timer import Timer
-
+#TO DOs
+#CREATE TOOL AND SEED ENUM FOR CLASS USE
 class Player(pygame.sprite.Sprite):
     def __init__(self, position, group, collision_sprites) -> None:
         super().__init__(group)
