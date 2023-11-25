@@ -12,6 +12,7 @@ class Level:
 
         self.all_sprites = CameraGroup()
         self.collision_sprites = pygame.sprite.Group()
+        self.tree_sprites = pygame.sprite.Group()
 
         self.setup()
         self.overlay = Overlay(self.player)
@@ -38,7 +39,7 @@ class Level:
             CandySunflower((obj.x, obj.y), obj.image, [self.all_sprites, self.collision_sprites])
 
         for obj in tmx_data.get_layer_by_name('Trees'):
-            Tree((obj.x, obj.y), obj.image, [self.all_sprites, self.collision_sprites], obj.name)
+            Tree((obj.x, obj.y), obj.image, [self.all_sprites, self.collision_sprites, self.tree_sprites], obj.name)
 
         for x, y, surf in tmx_data.get_layer_by_name('Collision').tiles():
             Generic((x * TILE_SIZE, y * TILE_SIZE), pygame.Surface((TILE_SIZE, TILE_SIZE)), self.collision_sprites, LAYERS['main'])
@@ -46,7 +47,13 @@ class Level:
         Generic((0, 0), pygame.image.load('graphics/world/ground.png').convert_alpha(), self.all_sprites, LAYERS['ground'])
         for obj in tmx_data.get_layer_by_name('Player'):
             if obj.name == 'Start':
-                self.player = Player((obj.x, obj.y), self.all_sprites, self.collision_sprites)
+                self.player = Player(
+                    position = (obj.x, obj.y), 
+                    group = self.all_sprites, 
+                    collision_sprites = self.collision_sprites,
+                    tree_sprites = self.tree_sprites)
+        
+        
 
     def run(self, dt):
         self.display_surface.fill('black')

@@ -5,8 +5,10 @@ from enum import Enum
 
 from settings import *
 from level import Level
-#NEXT TO DO IS WORKING ON THE TREES
+#NEXT TO DO IS PARTICLES
+#https://www.youtube.com/watch?v=T4IX36sP_0c
 #OTHER TO DOs:
+#CHANGE THE TYPE OF STUMP
 #RESIZE TREEES
 #RESIZE TREES COLLISION SIZES
 #RESIZE FLOWERS
