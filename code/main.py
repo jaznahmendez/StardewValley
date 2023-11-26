@@ -5,7 +5,7 @@ from enum import Enum
 
 from settings import *
 from level import Level
-#NEXT TO DO IS PARTICLES
+#NEXT TO DO IS RESTARTING THE DAY
 #https://www.youtube.com/watch?v=T4IX36sP_0c
 #OTHER TO DOs:
 #CHANGE THE TYPE OF STUMP
@@ -13,6 +13,7 @@ from level import Level
 #RESIZE TREES COLLISION SIZES
 #RESIZE FLOWERS
 #CHANGE GROUND TO CANDYS
+
 class Game:
     def __init__(self) -> None:
         pygame.init()
