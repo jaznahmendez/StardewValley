@@ -5,14 +5,12 @@ from enum import Enum
 
 from settings import *
 from level import Level
-#NEXT TO DO IS RESTARTING THE DAY
+#NEXT TO DO IS RAIN
 #https://www.youtube.com/watch?v=T4IX36sP_0c
 #OTHER TO DOs:
-#CHANGE THE TYPE OF STUMP
-#RESIZE TREEES
-#RESIZE TREES COLLISION SIZES
-#RESIZE FLOWERS
+#CHANGE FLOWERS?? a mi me gusta cómo se ven así ya
 #CHANGE GROUND TO CANDYS
+#CHANGE SOIL TILES AND SOIL_WATER - solo cambiarles el color
 
 class Game:
     def __init__(self) -> None:
