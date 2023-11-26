@@ -36,7 +36,7 @@ class Player(pygame.sprite.Sprite):
             'seed_switch': Timer(200),
         }
 
-        self.seeds = ['candy_apple', 'lolipop']
+        self.seeds = ['candy_tomato1', 'candy_tomato2']
         self.seed_index = 0
         self.selected_seed = self.seeds[self.seed_index]
         
@@ -67,9 +67,8 @@ class Player(pygame.sprite.Sprite):
     def get_target_pos(self):
         self.target_pos = self.rect.center + PLAYER_TOOL_OFFSET[self.status.split('_')[0]]
         
-
     def use_seed(self):
-        pass
+        self.soil_layer.plant_seed(self.target_pos, self.selected_seed)
 
     def import_assets(self):
         self.animations = {'up': [],'down': [],'left': [],'right': [],
