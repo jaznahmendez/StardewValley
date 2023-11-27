@@ -33,8 +33,8 @@ class Level:
         self.shop_active = False
         self.menu = Menu(self.player, self.toggle_shop)
         
-        self.music = pygame.mixer.Sound('audio/music.mp3')
-        self.music.set_volume(0.3)
+        self.music = pygame.mixer.Sound('audio/blank_space.mp3')
+        self.music.set_volume(0.2)
         self.music.play(loops = -1)
         self.success = pygame.mixer.Sound('audio/success.wav')
         self.success.set_volume(0.3)

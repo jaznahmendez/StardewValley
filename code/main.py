@@ -5,10 +5,8 @@ from enum import Enum
 
 from settings import *
 from level import Level
+
 #NEXT TO DO IS RAIN
-#https://www.youtube.com/watch?v=T4IX36sP_0c
-#OTHER TO DOs:
-#A VECES LAS MANZANAS DESAPARECEN - en algún lugar he de tener un if mal puesto
 
 class Game:
     def __init__(self) -> None:
