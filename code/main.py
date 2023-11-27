@@ -6,7 +6,7 @@ from enum import Enum
 from settings import *
 from level import Level
 
-#NEXT TO DO IS RAIN
+#MEMENTO - missing soil logic
 
 class Game:
     def __init__(self) -> None:
@@ -20,11 +20,12 @@ class Game:
         while True:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
+                    self.level.save_game()
                     pygame.quit()
                     sys.exit()
 
             dt = self.clock.tick() / 1000
-            self.level.run(dt)
+            self.level.run(dt)          
             pygame.display.update()
 
 if __name__ == '__main__':

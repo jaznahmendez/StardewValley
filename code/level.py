@@ -1,3 +1,5 @@
+import os
+import pickle
 import pygame
 from settings import *
 from player import Player
@@ -11,9 +13,22 @@ from sky import Rain, Sky
 from random import randint
 from menu import Menu
 
+#HACER QUE SI SE RESETEA EL DÍA, EMPIECE VIENDO PARA ABAJO
+
+class Memento:
+    def __init__(self, player_state, raining, soil_state):
+        self.player_state = player_state
+        self.raining = raining
+        self.soil_state = soil_state
+        #self.tree_state = tree_state
+
+    def get_state(self):
+        return self.player_state, self.raining, self.soil_state
+
 class Level:
     def __init__(self) -> None:
         self.display_surface = pygame.display.get_surface()
+        self.init_pos = (0,0)
 
         self.all_sprites = CameraGroup()
         self.collision_sprites = pygame.sprite.Group()
@@ -39,6 +54,41 @@ class Level:
         self.success = pygame.mixer.Sound('audio/success.wav')
         self.success.set_volume(0.3)
         
+        self.reset_button = pygame.Rect(50, 50, 100, 50)  # Cambia las dimensiones y la posición según tus necesidades
+        self.reset_button_color = (255, 0, 0)  # Rojo, por ejemplo
+        
+        try:
+            with open('saved_game_status.pkl', 'rb') as f:
+                saved_state = pickle.load(f)
+                self.restore_from_memento(saved_state)
+        except FileNotFoundError:
+            pass
+    
+    def save_to_memento(self):
+        # Aquí capturas el estado que deseas guardar
+        player_state = self.player.get_state()
+        soil_state = self.soil_layer.get_state()
+        #tree_state = [tree.get_state() for tree in self.tree_sprites]  # Similar para los árboles
+        return Memento(player_state, self.raining, soil_state)
+
+    def restore_from_memento(self, memento):
+        player_state, raining, soil_state = memento.get_state()
+        self.player.set_state(player_state)
+        self.raining = raining
+        self.soil_layer.set_state(soil_state)
+        #for tree, state in zip(self.tree_sprites, tree_state):
+        #    tree.set_state(state)  # Y un método set_state en Tree
+    
+    def reset_game(self):        
+        self.player.reset_player(self.init_pos)
+        self.soil_layer.reset_soil()
+        self.raining = randint(0,10) > 5
+        
+        try:
+            os.remove('saved_game_status.pkl')
+        except FileNotFoundError:
+            pass
+    
     def setup(self):
         tmx_data = load_pygame('data/map.tmx')
 
@@ -73,6 +123,7 @@ class Level:
         Generic((0, 0), pygame.image.load('graphics/world/ground.png').convert_alpha(), self.all_sprites, LAYERS['ground'])
         for obj in tmx_data.get_layer_by_name('Player'):
             if obj.name == 'Start':
+                self.init_pos = (obj.x, obj.y)
                 self.player = Player(
                     position = (obj.x, obj.y), 
                     group = self.all_sprites, 
@@ -126,6 +177,11 @@ class Level:
                     )
                     self.soil_layer.grid[plant.rect.centery // TILE_SIZE][plant.rect.centerx // TILE_SIZE].remove('P')
     
+    def save_game(self):
+        current_state = self.save_to_memento()
+        with open('saved_game_status.pkl', 'wb') as f:
+            pickle.dump(current_state, f)
+    
     def run(self, dt):
         self.display_surface.fill('black')
         self.all_sprites.custom_draw(self.player)
@@ -135,15 +191,30 @@ class Level:
         else:
             self.all_sprites.update(dt)
             self.plant_collision()
+            pygame.draw.rect(self.display_surface, self.reset_button_color, self.reset_button)
+            font = pygame.font.Font(None, 36)  # Cambia el tamaño y la fuente según tus necesidades
+            text = font.render('Reset', True, (255, 255, 255))  # Texto blanco
+            text_rect = text.get_rect(center=self.reset_button.center)
+            self.display_surface.blit(text, text_rect)
             
         self.overlay.display()
         if self.raining and not self.shop_active:
             self.rain.update()
+            pygame.draw.rect(self.display_surface, self.reset_button_color, self.reset_button)
+            font = pygame.font.Font(None, 36)  # Cambia el tamaño y la fuente según tus necesidades
+            text = font.render('Reset', True, (255, 255, 255))  # Texto blanco
+            text_rect = text.get_rect(center=self.reset_button.center)
+            self.display_surface.blit(text, text_rect)
         
         self.sky.display(dt)
         
         if self.player.sleep:
             self.transition.play()
+        
+        for event in pygame.event.get():
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if self.reset_button.collidepoint(event.pos):
+                    self.reset_game()
         
         #print(self.shop_active)
         #print(self.player.item_inventory)

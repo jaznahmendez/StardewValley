@@ -71,7 +71,33 @@ class SoilLayer:
         
         self.plant_sound = pygame.mixer.Sound('audio/plant.wav')
         self.plant_sound.set_volume(0.2)
-        
+    
+    def get_state(self):
+        soil_state = {
+            'grid': self.grid,
+            'plants': [{'plant_type': plant.plant_type, 'age': plant.age, 'position': (plant.rect.x, plant.rect.y)}
+                       for plant in self.plant_sprites]
+        }
+        return soil_state
+    
+    def set_state(self, state):
+        self.grid = state['grid']
+        self.create_soil_tiles()
+         #aquí está el problema
+        print(state['plants'])
+        for plant_state in state['plants']:
+            pos = plant_state['position']
+            soil_tile = next((s for s in self.soil_sprites if (s.rect.x, s.rect.y) == pos), None)
+            if soil_tile:
+                plant = Plant(plant_state['plant_type'], [self.all_sprites, self.plant_sprites, self.collision_sprites], soil_tile, self.check_watered)
+                plant.age = plant_state['age']
+                plant.grow() 
+                
+    def reset_soil(self):
+        self.grid = []
+        self.create_soil_grid()
+        self.create_soil_tiles()
+                
     def create_soil_grid(self):
         ground = pygame.image.load('graphics/world/ground.png')
         h_tiles, v_tiles = ground.get_width() // TILE_SIZE , ground.get_height() // TILE_SIZE
