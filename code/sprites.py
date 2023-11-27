@@ -62,7 +62,6 @@ class Tree(Generic):
         self.alive = True
         #{"small" if name == "Small" else "large"}
         self.stump_surf = pygame.image.load(f'graphics/stumps/small.png').convert_alpha()
-        self.invul_timer = Timer(200)
         
         self.apple_surf = pygame.image.load('graphics/fruit/candy_apple.png')
         self.apple_pos = APPLE_POS[name]
@@ -72,15 +71,19 @@ class Tree(Generic):
         
         self.player_add = player_add
         
+        self.axe_sound = pygame.mixer.Sound('audio/axe.mp3')
+        
     def damage(self):
         self.health -= 1
+        self.axe_sound.play()
+        
         if len(self.apple_sprites.sprites()) > 0:
             random_apple = choice(self.apple_sprites.sprites())
             Particle(pos = random_apple.rect.topleft, 
                      surf = random_apple.image, 
                      groups = self.groups()[0], 
                      z = LAYERS['fruit'])
-            self.player_add('apple')
+            self.player_add('candy_apple')
             random_apple.kill()
     
     def check_death(self):
@@ -103,10 +106,11 @@ class Tree(Generic):
         
     def create_fruit(self):
         for pos in self.apple_pos:
-            if randint(0,8) < 4:
+            if randint(0,10) < 4:
                 x = pos[0] + self.rect.left
                 y = pos[1] + self.rect.top
                 Generic(pos = (x, y), 
                         surf = self.apple_surf, 
                         groups = [self.apple_sprites, self.groups()[0]],
                         z = LAYERS['fruit'])
+               

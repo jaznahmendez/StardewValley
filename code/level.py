@@ -2,13 +2,14 @@ import pygame
 from settings import *
 from player import Player
 from overlay import Overlay
-from sprites import Generic, Water, CandySunflower, Tree, Interaction
+from sprites import Generic, Water, CandySunflower, Tree, Interaction, Particle
 from pytmx.util_pygame import load_pygame
 from support import *
 from transition import Transition
 from soil import SoilLayer
-from sky import Rain
+from sky import Rain, Sky
 from random import randint
+from menu import Menu
 
 class Level:
     def __init__(self) -> None:
@@ -27,6 +28,16 @@ class Level:
         self.rain = Rain(self.all_sprites)
         self.raining = randint(0,10) > 5
         self.soil_layer.raining = self.raining
+        self.sky = Sky()
+        
+        self.shop_active = False
+        self.menu = Menu(self.player, self.toggle_shop)
+        
+        self.music = pygame.mixer.Sound('audio/music.mp3')
+        self.music.set_volume(0.3)
+        self.music.play(loops = -1)
+        self.success = pygame.mixer.Sound('audio/success.wav')
+        self.success.set_volume(0.3)
         
     def setup(self):
         tmx_data = load_pygame('data/map.tmx')
@@ -68,13 +79,21 @@ class Level:
                     collision_sprites = self.collision_sprites,
                     tree_sprites = self.tree_sprites,
                     interaction = self.interaction_sprites,
-                    soil_layer = self.soil_layer)
+                    soil_layer = self.soil_layer,
+                    toggle_shop = self.toggle_shop)
             
             if obj.name == 'Bed':
                 Interaction((obj.x, obj.y), (obj.width, obj.height), self.interaction_sprites, obj.name)
+                
+            if obj.name == 'Trader':
+                Interaction((obj.x, obj.y), (obj.width, obj.height), self.interaction_sprites, obj.name)
           
     def player_add(self, item,):
+        self.success.play()
         self.player.item_inventory[item] += 1
+    
+    def toggle_shop(self):
+        self.shop_active = not self.shop_active
     
     def reset(self):
         self.soil_layer.update_plants()
@@ -90,20 +109,44 @@ class Level:
                 apple.kill()
             if  tree.alive:
                 tree.create_fruit()
+                
+        self.sky.start_color = [255, 255, 255]
+    
+    def plant_collision(self):
+        if self.soil_layer.plant_sprites:
+            for plant in self.soil_layer.plant_sprites.sprites():
+                if plant.harvestable and plant.rect.colliderect(self.player.hitbox):
+                    self.player_add(plant.plant_type)
+                    plant.kill()
+                    Particle(
+                        pos = plant.rect.topleft,
+                        surf = plant.image,
+                        groups = self.all_sprites,
+                        z = LAYERS['main']
+                    )
+                    self.soil_layer.grid[plant.rect.centery // TILE_SIZE][plant.rect.centerx // TILE_SIZE].remove('P')
     
     def run(self, dt):
         self.display_surface.fill('black')
         self.all_sprites.custom_draw(self.player)
-        self.all_sprites.update(dt)
-
-        self.overlay.display()
-        #print(self.player.item_inventory)
         
-        if self.raining:
+        if self.shop_active:
+            self.menu.update()
+        else:
+            self.all_sprites.update(dt)
+            self.plant_collision()
+            
+        self.overlay.display()
+        if self.raining and not self.shop_active:
             self.rain.update()
+        
+        self.sky.display(dt)
         
         if self.player.sleep:
             self.transition.play()
+        
+        #print(self.shop_active)
+        #print(self.player.item_inventory)
 
 class CameraGroup(pygame.sprite.Group):
     def __init__(self) -> None:

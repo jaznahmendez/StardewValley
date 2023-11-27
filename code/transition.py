@@ -12,7 +12,6 @@ class Transition:
         self.speed = -2
         
     def play(self):
-        
         self.color += self.speed
         if self.color <= 0:
             self.color = 0

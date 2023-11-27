@@ -36,17 +36,17 @@ APPLE_POS = {
 }
 
 GROW_SPEED = {
-	'candy_tomato2': 0.7,
+	'candy_tomato2': 1, #cambiar aquí si queremos que uno crezca más lento
 	'candy_tomato1': 1
 }
 
 SALE_PRICES = {
 	'wood': 4,
-	'apple': 2,
-	'corn': 10,
-	'tomato': 20
+	'candy_apple': 2,
+	'candy_tomato1': 5,
+	'candy_tomato2': 8
 }
 PURCHASE_PRICES = {
-	'candy_tomato1': 4,
+	'candy_tomato1': 3,
 	'candy_tomato2': 5,
 }

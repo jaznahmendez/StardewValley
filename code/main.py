@@ -8,15 +8,13 @@ from level import Level
 #NEXT TO DO IS RAIN
 #https://www.youtube.com/watch?v=T4IX36sP_0c
 #OTHER TO DOs:
-#CHANGE SOIL TILES AND SOIL_WATER - solo cambiarles el color?? así me dijeon que se ve bien
-#RESIZE GROWING PLANTS - seed same size, same position every step
-#PUSE QUE TODOS LOS HARVESTS CREZCAN IGUAL DE RÁPIDO, SE PUEDE CAMBIAR PERO LO PUSE ASÍ PARA PRUEBAS
+#A VECES LAS MANZANAS DESAPARECEN - en algún lugar he de tener un if mal puesto
 
 class Game:
     def __init__(self) -> None:
         pygame.init()
         self.screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-        pygame.display.set_caption('Candy Valley Demo')
+        pygame.display.set_caption('Candy Valley')
         self.clock = pygame.time.Clock()
         self.level = Level()
 
