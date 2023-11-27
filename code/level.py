@@ -65,10 +65,9 @@ class Level:
             pass
     
     def save_to_memento(self):
-        # Aquí capturas el estado que deseas guardar
         player_state = self.player.get_state()
         soil_state = self.soil_layer.get_state()
-        #tree_state = [tree.get_state() for tree in self.tree_sprites]  # Similar para los árboles
+
         return Memento(player_state, self.raining, soil_state)
 
     def restore_from_memento(self, memento):

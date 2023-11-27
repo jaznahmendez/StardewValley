@@ -83,16 +83,51 @@ class SoilLayer:
     def set_state(self, state):
         self.grid = state['grid']
         self.create_soil_tiles()
-         #aquí está el problema
-        print(state['plants'])
-        for plant_state in state['plants']:
-            pos = plant_state['position']
-            soil_tile = next((s for s in self.soil_sprites if (s.rect.x, s.rect.y) == pos), None)
-            if soil_tile:
-                plant = Plant(plant_state['plant_type'], [self.all_sprites, self.plant_sprites, self.collision_sprites], soil_tile, self.check_watered)
-                plant.age = plant_state['age']
-                plant.grow() 
+        
+        # Eliminar todas las plantas existentes antes de recrearlas
+        for plant in self.plant_sprites.sprites():
+            plant.kill()
+
+        for plant in  state['plants']:
+            self.plant_seed(target_pos=plant['position'], seed='plant_type')
+            for i in plant['age']:
+                self.update_plants()
                 
+
+        ''' # Recrear plantas basadas en el estado guardado
+        for plant_state in state['plants']:
+            # Inicializar soil_sprite con None
+            soil_sprite = None
+            
+            # Encuentra la celda correspondiente del suelo para la planta
+            soil_x, soil_y = plant_state['position']
+            for sprite in self.soil_sprites.sprites():
+                if sprite.rect.x == soil_x and sprite.rect.y == soil_y:
+                    soil_sprite = sprite
+                    break
+
+            # Si se encuentra la celda del suelo, recrea la planta
+            if soil_sprite:
+                new_plant = Plant(
+                    plant_state['plant_type'], 
+                    [self.all_sprites, self.plant_sprites, self.collision_sprites], 
+                    soil_sprite, 
+                    self.check_watered
+                )
+                new_plant.age = plant_state['age']
+                new_plant.update_image()  # Actualizar la imagen basada en la edad
+
+            
+            if soil_sprite:
+                new_plant = Plant(
+                    plant_state['plant_type'], 
+                    [self.all_sprites, self.plant_sprites, self.collision_sprites], 
+                    soil_sprite, 
+                    self.check_watered
+                )
+                new_plant.age = plant_state['age']
+                new_plant.update_image()'''
+
     def reset_soil(self):
         self.grid = []
         self.create_soil_grid()
