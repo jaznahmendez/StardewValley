@@ -10,11 +10,23 @@ from soil import SoilLayer
 from sky import Rain, Sky
 from random import randint
 from menu import Menu
+import os
+import pickle
+
+class Memento:
+    def __init__(self, player_state, raining, soil_state):
+        self.player_state = player_state
+        self.raining = raining
+        self.soil_state = soil_state
+
+    def get_state(self):
+        return self.player_state, self.raining, self.soil_state
 
 class Level:
     def __init__(self) -> None:
         self.loader_proxy = FolderImportProxy()
-
+        self.init_pos = (0,0)
+        
         self.display_surface = pygame.display.get_surface()
 
         self.all_sprites = CameraGroup()
@@ -40,6 +52,28 @@ class Level:
         self.music.play(loops = -1)
         self.success = pygame.mixer.Sound('audio/success.wav')
         self.success.set_volume(0.3)
+        
+        self.reset_button = pygame.Rect(50, 50, 100, 50)
+        self.reset_button_color = (255, 0, 0)
+        
+        try:
+            with open('game_status.pkl', 'rb') as f:
+                saved_state = pickle.load(f)
+                self.restore_from_memento(saved_state)
+        except FileNotFoundError:
+            print('error')
+            self.reset_game()
+            
+    def save_to_memento(self):
+        player_state = self.player.get_state()
+        soil_state = self.soil_layer.get_state()
+        return Memento(player_state, self.raining, soil_state)
+
+    def restore_from_memento(self, memento):
+        player_state, raining, soil_state = memento.get_state()
+        self.player.set_state(player_state)
+        self.raining = raining
+        self.soil_layer.set_state(soil_state)
         
     def setup(self):
         tmx_data = load_pygame('data/map.tmx')
@@ -75,6 +109,7 @@ class Level:
         ObjectFactory.create_object("Generic", (0, 0), pygame.image.load('graphics/world/ground.png').convert_alpha(), self.all_sprites, LAYERS['ground'])
         for obj in tmx_data.get_layer_by_name('Player'):
             if obj.name == 'Start':
+                self.init_pos = (obj.x, obj.y)
                 self.player = Player(
                     position = (obj.x, obj.y), 
                     group = self.all_sprites, 
@@ -96,6 +131,23 @@ class Level:
     
     def toggle_shop(self):
         self.shop_active = not self.shop_active
+        
+    def reset_game(self):
+        self.soil_layer.update_reset()
+        self.soil_layer.remove_water()
+        self.player.reset_player(self.init_pos)    
+        self.raining = randint(0,10) > 5
+        self.soil_layer.raining = self.raining
+        
+        if self.raining:
+            self.soil_layer.water_all()
+        
+        self.sky.start_color = [255, 255, 255]
+        
+        try:
+            os.remove('game_status.pkl')
+        except FileNotFoundError:
+            pass
     
     def reset(self):
         self.soil_layer.update_plants()
@@ -128,6 +180,21 @@ class Level:
                     )
                     self.soil_layer.grid[plant.rect.centery // TILE_SIZE][plant.rect.centerx // TILE_SIZE].remove('P')
     
+    def save_game(self):
+        current_state = self.save_to_memento()
+        with open('game_status.pkl', 'wb') as f:
+            pickle.dump(current_state, f)
+            
+    def update_game_elements(self, dt):
+        self.all_sprites.update(dt)
+        if self.raining:
+            self.rain.update()
+        self.player.update(dt)
+        
+    def draw_game_elements(self):
+        self.all_sprites.custom_draw(self.player)
+        self.overlay.display()
+        
     def run(self, dt):
         self.display_surface.fill('black')
         self.all_sprites.custom_draw(self.player)
@@ -137,16 +204,36 @@ class Level:
         else:
             self.all_sprites.update(dt)
             self.plant_collision()
+            pygame.draw.rect(self.display_surface, self.reset_button_color, self.reset_button)
+            font = pygame.font.Font(None, 36)
+            text = font.render('Reset', True, (255, 255, 255))
+            text_rect = text.get_rect(center=self.reset_button.center)
+            self.display_surface.blit(text, text_rect)
             
         self.overlay.display()
         if self.raining and not self.shop_active:
             self.rain.update()
+            pygame.draw.rect(self.display_surface, self.reset_button_color, self.reset_button)
+            font = pygame.font.Font(None, 36)
+            text = font.render('Reset', True, (255, 255, 255))
+            text_rect = text.get_rect(center=self.reset_button.center)
+            self.display_surface.blit(text, text_rect)
         
         self.sky.display(dt)
         
         if self.player.sleep:
             self.transition.play()
         
+        for event in pygame.event.get():
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if self.reset_button.collidepoint(event.pos):
+                    self.reset_game()
+                    self.update_game_elements(dt)
+                    self.draw_game_elements() 
+        
+        pygame.display.flip()
+
+        #print(self.soil_layer.grid)
         #print(self.shop_active)
         #print(self.player.item_inventory)
 

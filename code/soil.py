@@ -7,6 +7,7 @@ from random import choice
 class SoilTile(pygame.sprite.Sprite):
     def __init__(self, pos, surf, groups):
         super().__init__(groups)
+        self.pos = pos
         self.image = surf
         self.rect = self.image.get_rect(topleft = pos)
         self.z = LAYERS['soil']
@@ -73,7 +74,29 @@ class SoilLayer:
         
         self.plant_sound = pygame.mixer.Sound('audio/plant.wav')
         self.plant_sound.set_volume(0.2)
-        
+    
+    def get_state(self): #save memento
+        soil_state = {
+            'grid': self.grid,
+            'plants': [{'plant_type': plant.plant_type, 
+                        'age': plant.age, 
+                        'position': (plant.rect.x, plant.rect.y)}
+                       for plant in self.plant_sprites],
+            'soil_tiles': [{'position': (soil.rect.y, soil.rect.x)}
+                       for soil in self.soil_sprites]
+        }
+        return soil_state
+    
+    def set_state(self, state): #restore memento
+        self.grid = state['grid']
+        print(state['plants'])
+        self.create_soil_tiles()
+        for plant_state in state['plants']:
+            for soil_sprite in self.soil_sprites.sprites():
+                    plant = Plant(plant_state['plant_type'], [self.all_sprites, self.plant_sprites, self.collision_sprites], soil_sprite, self.check_watered)
+                    plant.age = int(plant_state['age']) - 1
+                    plant.grow()
+                    
     def create_soil_grid(self):
         ground = pygame.image.load('graphics/world/ground.png')
         h_tiles, v_tiles = ground.get_width() // TILE_SIZE , ground.get_height() // TILE_SIZE
@@ -160,6 +183,17 @@ class SoilLayer:
     def update_plants(self):
         for plant in self.plant_sprites.sprites():
             plant.grow()
+            
+    def update_reset(self):
+        for plant in self.plant_sprites.sprites():
+            plant.kill()
+        for soil in self.soil_sprites.sprites():
+            soil.kill()
+        for water in self.water_sprites.sprites():
+            water.kill()
+        
+        self.grid = []
+        self.create_soil_grid()
     
     def create_soil_tiles(self):
         self.soil_sprites.empty()

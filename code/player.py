@@ -65,7 +65,49 @@ class Player(pygame.sprite.Sprite):
         self.water_sound = pygame.mixer.Sound('audio/water.mp3')
         self.water_sound.set_volume(0.4)
             
+    def get_state(self):
+        state = {
+            'position': (self.rect.x, self.rect.y),
+            'item_inventory': self.item_inventory.copy(),
+            'seed_inventory': self.seed_inventory.copy(),
+            'money': self.money,
+            'selected_tool': self.selected_tool,
+            'selected_seed': self.selected_seed
+        }
+        return state            
 
+    def set_state(self, state):
+        self.rect.x, self.rect.y = state['position']
+        self.hitbox.center = self.rect.center
+        self.pos = pygame.math.Vector2(self.rect.center)
+        
+        self.item_inventory = state['item_inventory']
+        self.seed_inventory = state['seed_inventory']
+        self.money = state['money']
+        self.selected_tool = state['selected_tool']
+        self.selected_seed = state['selected_seed']
+
+    def reset_player(self, position):
+        self.rect = self.image.get_rect(center = position)
+        self.hitbox = self.rect.copy().inflate(-126, -70)
+        self.pos = pygame.math.Vector2(self.rect.center)
+        
+        self.item_inventory = {
+            'wood': 10,
+            'candy_apple': 10,
+            'candy_tomato1': 10,
+            'candy_tomato2': 10
+        }
+            
+        self.seed_inventory = {
+            'candy_tomato1': 5,
+            'candy_tomato2': 5
+        }
+            
+        self.money = 100
+        self.selected_tool = self.tools[self.tool_index]
+        self.selected_seed = self.seeds[self.seed_index]
+        
     def use_tool(self):
         if self.selected_tool == 'hoe':
             self.soil_layer.get_hit(self.target_pos)
