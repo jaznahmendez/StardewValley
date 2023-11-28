@@ -26,6 +26,7 @@ class ObjectFactory:
 class Generic(pygame.sprite.Sprite):
     '''Generic sprite class'''
     def __init__(self, pos, surf, groups, z = LAYERS['main']):
+        '''Initialize the sprite'''
         super().__init__(groups)
         self.image = surf
         self.rect = self.image.get_rect(topleft = pos)
@@ -35,6 +36,7 @@ class Generic(pygame.sprite.Sprite):
 class Interaction(Generic):
     '''Generic sprite class for objects that can be interacted with'''
     def __init__(self, pos, size, groups, name):
+        '''Initialize the sprite'''
         surf = pygame.Surface(size)
         super().__init__(pos, surf, groups)
         self.name = name
@@ -42,6 +44,7 @@ class Interaction(Generic):
 class Water(Generic):
     '''Water sprite class'''
     def __init__(self, pos, frames, groups) -> None:
+        '''Initialize the sprite'''
         self.frames = frames
         self.frame_index = 0
         super().__init__(pos, self.frames[self.frame_index], groups, LAYERS['water'])
@@ -60,12 +63,14 @@ class Water(Generic):
 class CandySunflower(Generic):
     ''''Candy Sunflower sprite class'''
     def __init__(self, pos, surf, groups) -> None:
+        '''Initialize the sprite'''
         super().__init__(pos, surf, groups)
         self.hitbox = self.rect.copy().inflate(-20, -self.rect.height * 0.9)
 
 class Particle(Generic):
     '''Particle sprite class'''
     def __init__(self, pos, surf, groups, z, duration = 200):
+        '''Initialize the sprite'''
         super().__init__(pos, surf, groups, z = LAYERS['main'])
         self.start_time = pygame.time.get_ticks()
         self.duration = duration
@@ -84,6 +89,7 @@ class Particle(Generic):
 class Tree(Generic):
     '''Tree sprite class'''
     def __init__(self, pos, surf, groups, name,player_add) -> None:
+        '''Initialize the sprite'''
         super().__init__(pos, surf, groups)
         
         self.health = 5

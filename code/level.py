@@ -14,16 +14,21 @@ import os
 import pickle
 
 class Memento:
+    '''Memento class for storing game state'''
     def __init__(self, player_state, raining, soil_state):
+        '''Initializes the memento'''
         self.player_state = player_state
         self.raining = raining
         self.soil_state = soil_state
 
     def get_state(self):
+        '''Returns the state stored in the memento'''
         return self.player_state, self.raining, self.soil_state
 
 class Level:
+    '''Level class for managing game elements'''
     def __init__(self) -> None:
+        '''Initializes the level'''
         self.loader_proxy = FolderImportProxy()
         self.init_pos = (0,0)
         
@@ -65,17 +70,20 @@ class Level:
             self.reset_game()
             
     def save_to_memento(self):
+        '''Saves the current state of the game'''
         player_state = self.player.get_state()
         soil_state = self.soil_layer.get_state()
         return Memento(player_state, self.raining, soil_state)
 
     def restore_from_memento(self, memento):
+        '''Restores the game state from a memento'''
         player_state, raining, soil_state = memento.get_state()
         self.player.set_state(player_state)
         self.raining = raining
         self.soil_layer.set_state(soil_state)
         
     def setup(self):
+        '''Sets up the game elements'''
         tmx_data = load_pygame('data/map.tmx')
 
         for layer in ['HouseFloor', 'HouseFurnitureBottom']:
@@ -126,13 +134,16 @@ class Level:
                 ObjectFactory.create_object("Interaction", (obj.x, obj.y), (obj.width, obj.height), self.interaction_sprites, obj.name)
           
     def player_add(self, item,):
+        '''Adds an item to the player's inventory'''
         self.success.play()
         self.player.item_inventory[item] += 1
     
     def toggle_shop(self):
+        '''Toggles the shop menu'''
         self.shop_active = not self.shop_active
         
     def reset_game(self):
+        '''Resets the game'''
         self.soil_layer.update_reset()
         self.soil_layer.remove_water()
         self.player.reset_player(self.init_pos)    
@@ -150,6 +161,7 @@ class Level:
             pass
     
     def reset(self):
+        '''Resets the game'''
         self.soil_layer.update_plants()
         
         self.soil_layer.remove_water()    
@@ -167,6 +179,7 @@ class Level:
         self.sky.start_color = [255, 255, 255]
     
     def plant_collision(self):
+        '''Checks if the player is colliding with a plant and harvests it if it is'''
         if self.soil_layer.plant_sprites:
             for plant in self.soil_layer.plant_sprites.sprites():
                 if plant.harvestable and plant.rect.colliderect(self.player.hitbox):
@@ -181,21 +194,25 @@ class Level:
                     self.soil_layer.grid[plant.rect.centery // TILE_SIZE][plant.rect.centerx // TILE_SIZE].remove('P')
     
     def save_game(self):
+        '''Saves the game state to a file'''
         current_state = self.save_to_memento()
         with open('game_status.pkl', 'wb') as f:
             pickle.dump(current_state, f)
             
     def update_game_elements(self, dt):
+        '''Updates the game elements'''
         self.all_sprites.update(dt)
         if self.raining:
             self.rain.update()
         self.player.update(dt)
         
     def draw_game_elements(self):
+        '''Draws the game elements'''
         self.all_sprites.custom_draw(self.player)
         self.overlay.display()
         
     def run(self, dt):
+        '''Runs the game loop'''
         self.display_surface.fill('black')
         self.all_sprites.custom_draw(self.player)
         
@@ -233,17 +250,16 @@ class Level:
         
         pygame.display.flip()
 
-        #print(self.soil_layer.grid)
-        #print(self.shop_active)
-        #print(self.player.item_inventory)
-
 class CameraGroup(pygame.sprite.Group):
+    '''CameraGroup class for managing sprites'''
     def __init__(self) -> None:
+        '''Initializes the CameraGroup'''
         super().__init__()
         self.display_surface = pygame.display.get_surface()
         self.offset = pygame.math.Vector2()
 
     def custom_draw(self, player):
+        '''Draws the sprites in the group'''
         self.offset.x = player.rect.centerx - SCREEN_WIDTH / 2
         self.offset.y = player.rect.centery - SCREEN_HEIGHT / 2
 

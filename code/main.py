@@ -6,10 +6,10 @@ from enum import Enum
 from settings import *
 from level import Level
 
-#MEMENTO - missing soil logic
-
 class Game: 
+    '''Main game class.'''
     def __init__(self) -> None:
+        '''Initialize the game.'''
         pygame.init()
         self.screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
         pygame.display.set_caption('Candy Valley')
@@ -17,6 +17,7 @@ class Game:
         self.level = Level()
 
     def run(self):
+        '''Main game loop.'''
         while True:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:

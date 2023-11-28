@@ -3,10 +3,11 @@ import pygame
 from settings import *
 from support import FolderImportProxy
 from timer import Timer
-#TO DOs
-#CREATE TOOL AND SEED ENUM FOR CLASS USE
+
 class Player(pygame.sprite.Sprite):
+    '''Class for the player.'''
     def __init__(self, position, group, collision_sprites, tree_sprites, interaction, soil_layer, toggle_shop):
+        '''Initialize the player.'''
         super().__init__(group)
 
         self.loader_proxy = FolderImportProxy()
@@ -66,6 +67,7 @@ class Player(pygame.sprite.Sprite):
         self.water_sound.set_volume(0.4)
             
     def get_state(self):
+        '''Returns the state of the player.'''
         state = {
             'position': (self.rect.x, self.rect.y),
             'item_inventory': self.item_inventory.copy(),
@@ -77,6 +79,7 @@ class Player(pygame.sprite.Sprite):
         return state            
 
     def set_state(self, state):
+        '''Sets the state of the player.'''
         self.rect.x, self.rect.y = state['position']
         self.hitbox.center = self.rect.center
         self.pos = pygame.math.Vector2(self.rect.center)
@@ -88,6 +91,7 @@ class Player(pygame.sprite.Sprite):
         self.selected_seed = state['selected_seed']
 
     def reset_player(self, position):
+        '''Resets the player.'''
         self.rect = self.image.get_rect(center = position)
         self.hitbox = self.rect.copy().inflate(-126, -70)
         self.pos = pygame.math.Vector2(self.rect.center)
@@ -109,6 +113,7 @@ class Player(pygame.sprite.Sprite):
         self.selected_seed = self.seeds[self.seed_index]
         
     def use_tool(self):
+        '''Uses the selected tool.'''
         if self.selected_tool == 'hoe':
             self.soil_layer.get_hit(self.target_pos)
             
@@ -122,14 +127,17 @@ class Player(pygame.sprite.Sprite):
             self.soil_layer.water(self.target_pos)
         
     def get_target_pos(self):
+        '''Gets the target position of the player.'''
         self.target_pos = self.rect.center + PLAYER_TOOL_OFFSET[self.status.split('_')[0]]
         
     def use_seed(self):
+        '''Uses the selected seed.'''
         if self.seed_inventory[self.selected_seed] > 0:
             self.soil_layer.plant_seed(self.target_pos, self.selected_seed)
             self.seed_inventory[self.selected_seed] -= 1
 
     def import_assets(self):
+        '''Imports the assets for the player.'''
         self.animations = {'up': [],'down': [],'left': [],'right': [],
 						   'right_idle':[],'left_idle':[],'up_idle':[],'down_idle':[],
 						   'right_hoe':[],'left_hoe':[],'up_hoe':[],'down_hoe':[],
@@ -140,12 +148,14 @@ class Player(pygame.sprite.Sprite):
             self.animations[animation] = self.loader_proxy.import_folder(path)
 
     def animate(self, dt):
+        '''Animates the player.'''
         self.frame_index += dt * 4
         if self.frame_index >= len(self.animations[self.status]):
             self.frame_index = 0
         self.image = self.animations[self.status][int(self.frame_index)]
 
     def input(self):
+        '''Handles player input.'''
         pressed = pygame.key.get_pressed()
 
         if not self.timers['tool_use'].active and not self.sleep:
@@ -202,6 +212,7 @@ class Player(pygame.sprite.Sprite):
                     self.sleep = True
 
     def get_status(self):
+        '''Gets the status of the player.'''
         if self.direction.magnitude() == 0:
             self.status = self.status.split('_')[0] + '_idle'
         
@@ -209,10 +220,12 @@ class Player(pygame.sprite.Sprite):
             self.status = self.status.split('_')[0] + '_' + self.selected_tool
 
     def update_timers(self):
+        '''Updates the timers of the player.'''
         for timer in self.timers.values():
             timer.update()
 
     def collision(self, direction):
+        '''Handles collision of the player.'''
         for sprite in self.collision_sprites.sprites():
             if hasattr(sprite, 'hitbox'):
                 if sprite.hitbox.colliderect(self.hitbox):
@@ -232,6 +245,7 @@ class Player(pygame.sprite.Sprite):
                         self.pos.y = self.hitbox.centery
 
     def move(self, dt):
+        '''Moves the player.'''
         if self.direction.magnitude() > 0:  
             self.direction = self.direction.normalize()
 
@@ -246,6 +260,7 @@ class Player(pygame.sprite.Sprite):
         self.collision('vertical')     
 
     def update(self, dt):
+        '''Updates the player.'''
         self.input()
         self.get_status()
         self.update_timers()

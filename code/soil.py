@@ -5,7 +5,9 @@ from support import FolderImportProxy
 from random import choice
 
 class SoilTile(pygame.sprite.Sprite):
+    '''Class for the soil tiles.'''
     def __init__(self, pos, surf, groups):
+        '''Initializes the soil tile.'''
         super().__init__(groups)
         self.pos = pos
         self.image = surf
@@ -13,14 +15,18 @@ class SoilTile(pygame.sprite.Sprite):
         self.z = LAYERS['soil']
 
 class WaterTile(pygame.sprite.Sprite):
+    '''Class for the water tiles.'''
     def __init__(self, pos, surf, groups):
+        '''Initializes the water tile.'''
         super().__init__(groups)
         self.image = surf
         self.rect = self.image.get_rect(topleft = pos)
         self.z = LAYERS['soil water']
 
 class Plant(pygame.sprite.Sprite):
+    '''Class for the plants.'''
     def __init__(self, plant_type, groups, soil, check_watered):
+        '''Initializes the plant.'''
         super().__init__(groups)
         self.loader_proxy = FolderImportProxy()
         self.plant_type = plant_type
@@ -40,6 +46,7 @@ class Plant(pygame.sprite.Sprite):
         self.z = LAYERS['ground plant']
     
     def grow(self):
+        '''Grows the plant.'''
         if self.check_watered(self.rect.center):
             self.age += self.grow_speed
             
@@ -55,7 +62,9 @@ class Plant(pygame.sprite.Sprite):
             self.rect = self.image.get_rect(midbottom = self.soil.rect.midbottom + pygame.math.Vector2(0, self.y_offset))
         
 class SoilLayer:
+    '''Class for the soil layer.'''
     def __init__(self, all_sprites, collision_sprites):
+        '''Initializes the soil layer.'''
         self.loader_proxy = FolderImportProxy()
         self.all_sprites = all_sprites
         self.collision_sprites = collision_sprites
@@ -76,6 +85,7 @@ class SoilLayer:
         self.plant_sound.set_volume(0.2)
     
     def get_state(self): #save memento
+        '''Returns the state of the soil layer.'''
         soil_state = {
             'grid': self.grid,
             'plants': [{'plant_type': plant.plant_type, 
@@ -88,6 +98,7 @@ class SoilLayer:
         return soil_state
     
     def set_state(self, state): #restore memento
+        '''Sets the state of the soil layer.'''
         self.grid = state['grid']
         print(state['plants'])
         self.create_soil_tiles()
@@ -98,6 +109,7 @@ class SoilLayer:
                     plant.grow()
                     
     def create_soil_grid(self):
+        '''Creates the soil grid.'''
         ground = pygame.image.load('graphics/world/ground.png')
         h_tiles, v_tiles = ground.get_width() // TILE_SIZE , ground.get_height() // TILE_SIZE
         
@@ -106,6 +118,7 @@ class SoilLayer:
           self.grid[y][x].append('F')
           
     def create_hit_rects(self):
+        '''Creates the hit rects.'''
         self.hit_rects = []
         for index_row, row in enumerate(self.grid):
             for index_col, cell in enumerate(row):
@@ -116,6 +129,7 @@ class SoilLayer:
                     self.hit_rects.append(rect)   
                     
     def get_hit(self, point):
+        '''Gets the hit rect.'''
         for rect in self.hit_rects:
             if rect.collidepoint(point):
                 self.hoe_sound.play()
@@ -129,6 +143,7 @@ class SoilLayer:
                         self.water_all()
     
     def water(self, target_pos):
+        '''Waters the soil.'''
         for soil_sprite in self.soil_sprites.sprites():
             if soil_sprite.rect.collidepoint(target_pos):
                 x = soil_sprite.rect.x // TILE_SIZE
@@ -142,6 +157,7 @@ class SoilLayer:
                 )
                 
     def water_all(self):
+         '''Waters all the soil.'''
          for index_row, row in enumerate(self.grid):
             for index_col, cell in enumerate(row):
                 if 'X' in cell and 'W' not in cell:
@@ -153,6 +169,7 @@ class SoilLayer:
                     )
     
     def remove_water(self):
+        '''Removes the water.'''
         for sprite in self.water_sprites.sprites():
             sprite.kill()
             
@@ -162,6 +179,7 @@ class SoilLayer:
                     cell.remove('W')
     
     def check_watered(self, pos):
+        '''Checks if the soil is watered.'''
         x = pos[0] // TILE_SIZE
         y = pos[1] // TILE_SIZE
         cell = self.grid[y][x]
@@ -169,6 +187,7 @@ class SoilLayer:
         return is_watered
     
     def plant_seed(self, target_pos, seed):
+        '''Plants the seed.'''
         for soil_sprite in self.soil_sprites.sprites():
             if soil_sprite.rect.collidepoint(target_pos):  
                 self.plant_sound.play()
@@ -181,10 +200,12 @@ class SoilLayer:
                     Plant(seed, [self.all_sprites, self.plant_sprites, self.collision_sprites], soil_sprite, self.check_watered)
                     
     def update_plants(self):
+        ''' Updates the plants.'''
         for plant in self.plant_sprites.sprites():
             plant.grow()
             
     def update_reset(self):
+        '''Resets the soil.'''
         for plant in self.plant_sprites.sprites():
             plant.kill()
         for soil in self.soil_sprites.sprites():
@@ -196,6 +217,7 @@ class SoilLayer:
         self.create_soil_grid()
     
     def create_soil_tiles(self):
+        '''Creates the soil tiles.'''
         self.soil_sprites.empty()
         for index_row, row in enumerate(self.grid):
             for index_col, cell in enumerate(row):

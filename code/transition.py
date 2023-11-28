@@ -2,7 +2,9 @@ import pygame
 from settings import *
 
 class Transition:
+    '''Class for the transition between levels'''
     def __init__(self,reset,player):
+        '''Initialize the transition'''
         self.display_surface = pygame.display.get_surface()
         self.reset = reset
         self.player = player
@@ -12,6 +14,7 @@ class Transition:
         self.speed = -2
         
     def play(self):
+        '''Play the transition'''
         self.color += self.speed
         if self.color <= 0:
             self.color = 0

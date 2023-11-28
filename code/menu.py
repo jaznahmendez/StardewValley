@@ -3,8 +3,9 @@ from settings import *
 from timer import Timer
 
 class Menu:
+    '''Base class for all menus.'''
     def __init__(self, player, toggle_menu):
-        
+        '''Initialize the menu.'''
         self.player = player
         self.toggle_menu = toggle_menu
         self.display_surface = pygame.display.get_surface()
@@ -22,6 +23,7 @@ class Menu:
         self.timer = Timer(250)
     
     def display_money(self):
+        '''Displays the player's money.'''
         text_surf = self.font.render(f'${self.player.money}', False, 'Black')
         text_rect = text_surf.get_rect(midbottom = (SCREEN_WIDTH / 2, SCREEN_HEIGHT - 25))
         
@@ -29,6 +31,7 @@ class Menu:
         self.display_surface.blit(text_surf, text_rect)
     
     def setup(self):
+        '''Sets up the menu.'''
         self.text_surfs = []
         self.total_height = 0
         for item in self.options:
@@ -44,6 +47,7 @@ class Menu:
         self.sell_text = self.font.render('sell', False, 'Black')
             
     def input(self):
+        '''Handles menu input.'''
         keys = pygame.key.get_pressed()
         self.timer.update()
         
@@ -80,6 +84,7 @@ class Menu:
             self.index = 0
     
     def show_entry(self, text_surf, amount, top, selected):
+        '''Displays a menu entry.'''
         bg_rect = pygame.Rect(self.main_rect.left, top, self.width, text_surf.get_height() + (self.padding * 2))
         pygame.draw.rect(self.display_surface, 'White', bg_rect, 0,8)
         
@@ -100,6 +105,7 @@ class Menu:
                 self.display_surface.blit(self.buy_text,pos_rect)
                 
     def update(self):
+        '''Updates the menu.'''
         self.input()
         self.display_money()
         for text_index, text_surf in enumerate(self.text_surfs):
