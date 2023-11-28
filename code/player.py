@@ -1,13 +1,15 @@
 from typing import Any
 import pygame
 from settings import *
-from support import *
+from support import FolderImportProxy
 from timer import Timer
 #TO DOs
 #CREATE TOOL AND SEED ENUM FOR CLASS USE
 class Player(pygame.sprite.Sprite):
     def __init__(self, position, group, collision_sprites, tree_sprites, interaction, soil_layer, toggle_shop):
         super().__init__(group)
+
+        self.loader_proxy = FolderImportProxy()
 
         self.import_assets()
         self.status = 'down_idle'
@@ -93,7 +95,7 @@ class Player(pygame.sprite.Sprite):
 						   'right_water':[],'left_water':[],'up_water':[],'down_water':[]}
         for animation in self.animations.keys():
             path = 'graphics/character/' + animation
-            self.animations[animation] = import_folder(path)
+            self.animations[animation] = self.loader_proxy.import_folder(path)
 
     def animate(self, dt):
         self.frame_index += dt * 4

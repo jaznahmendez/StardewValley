@@ -2,9 +2,9 @@ import pygame
 from settings import *
 from player import Player
 from overlay import Overlay
-from sprites import Generic, Water, CandySunflower, Tree, Interaction, Particle
+from sprites import ObjectFactory
 from pytmx.util_pygame import load_pygame
-from support import *
+from support import FolderImportProxy
 from transition import Transition
 from soil import SoilLayer
 from sky import Rain, Sky
@@ -13,6 +13,8 @@ from menu import Menu
 
 class Level:
     def __init__(self) -> None:
+        self.loader_proxy = FolderImportProxy()
+
         self.display_surface = pygame.display.get_surface()
 
         self.all_sprites = CameraGroup()
@@ -44,33 +46,33 @@ class Level:
 
         for layer in ['HouseFloor', 'HouseFurnitureBottom']:
             for x, y, surf in tmx_data.get_layer_by_name(layer).tiles():
-                Generic((x * TILE_SIZE, y * TILE_SIZE), surf, self.all_sprites, LAYERS['house bottom'])
+                ObjectFactory.create_object("Generic", (x * TILE_SIZE, y * TILE_SIZE), surf, self.all_sprites, LAYERS['house bottom'])
 
         for layer in ['HouseWalls', 'HouseFurnitureTop']:
             for x, y, surf in tmx_data.get_layer_by_name(layer).tiles():
-                Generic((x * TILE_SIZE, y * TILE_SIZE), surf, self.all_sprites, LAYERS['main'])
+                ObjectFactory.create_object("Generic", (x * TILE_SIZE, y * TILE_SIZE), surf, self.all_sprites, LAYERS['main'])
 
             for x, y, surf in tmx_data.get_layer_by_name('Fence').tiles():
-                Generic((x * TILE_SIZE, y * TILE_SIZE), surf, [self.all_sprites, self.collision_sprites], LAYERS['main'])
+                ObjectFactory.create_object("Generic", (x * TILE_SIZE, y * TILE_SIZE), surf, [self.all_sprites, self.collision_sprites], LAYERS['main'])
 
-        water_frames = import_folder('graphics/water')
+        water_frames = self.loader_proxy.import_folder('graphics/water')
         for x, y, surf in tmx_data.get_layer_by_name('Water').tiles():
-            Water((x * TILE_SIZE, y * TILE_SIZE), water_frames, self.all_sprites)
+            ObjectFactory.create_object("Water", (x * TILE_SIZE, y * TILE_SIZE), water_frames, self.all_sprites)
 
         for obj in tmx_data.get_layer_by_name('Decoration'):
-            CandySunflower((obj.x, obj.y), obj.image, [self.all_sprites, self.collision_sprites])
+            ObjectFactory.create_object("CandySunflower", (obj.x, obj.y), obj.image, [self.all_sprites, self.collision_sprites])
 
         for obj in tmx_data.get_layer_by_name('Trees'):
-            Tree(pos = (obj.x, obj.y), 
+            ObjectFactory.create_object("Tree", pos = (obj.x, obj.y), 
                  surf = obj.image, 
                  groups = [self.all_sprites, self.collision_sprites, self.tree_sprites], 
                  name = obj.name,
                  player_add = self.player_add)
 
         for x, y, surf in tmx_data.get_layer_by_name('Collision').tiles():
-            Generic((x * TILE_SIZE, y * TILE_SIZE), pygame.Surface((TILE_SIZE, TILE_SIZE)), self.collision_sprites, LAYERS['main'])
+            ObjectFactory.create_object("Generic", (x * TILE_SIZE, y * TILE_SIZE), pygame.Surface((TILE_SIZE, TILE_SIZE)), self.collision_sprites, LAYERS['main'])
 
-        Generic((0, 0), pygame.image.load('graphics/world/ground.png').convert_alpha(), self.all_sprites, LAYERS['ground'])
+        ObjectFactory.create_object("Generic", (0, 0), pygame.image.load('graphics/world/ground.png').convert_alpha(), self.all_sprites, LAYERS['ground'])
         for obj in tmx_data.get_layer_by_name('Player'):
             if obj.name == 'Start':
                 self.player = Player(
@@ -83,10 +85,10 @@ class Level:
                     toggle_shop = self.toggle_shop)
             
             if obj.name == 'Bed':
-                Interaction((obj.x, obj.y), (obj.width, obj.height), self.interaction_sprites, obj.name)
+                ObjectFactory.create_object("Interaction", (obj.x, obj.y), (obj.width, obj.height), self.interaction_sprites, obj.name)
                 
             if obj.name == 'Trader':
-                Interaction((obj.x, obj.y), (obj.width, obj.height), self.interaction_sprites, obj.name)
+                ObjectFactory.create_object("Interaction", (obj.x, obj.y), (obj.width, obj.height), self.interaction_sprites, obj.name)
           
     def player_add(self, item,):
         self.success.play()
@@ -118,7 +120,7 @@ class Level:
                 if plant.harvestable and plant.rect.colliderect(self.player.hitbox):
                     self.player_add(plant.plant_type)
                     plant.kill()
-                    Particle(
+                    ObjectFactory.create_object("Particle", 
                         pos = plant.rect.topleft,
                         surf = plant.image,
                         groups = self.all_sprites,

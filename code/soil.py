@@ -1,7 +1,7 @@
 import pygame
 from settings import *
 from pytmx.util_pygame import load_pygame
-from support import *
+from support import FolderImportProxy
 from random import choice
 
 class SoilTile(pygame.sprite.Sprite):
@@ -21,9 +21,10 @@ class WaterTile(pygame.sprite.Sprite):
 class Plant(pygame.sprite.Sprite):
     def __init__(self, plant_type, groups, soil, check_watered):
         super().__init__(groups)
+        self.loader_proxy = FolderImportProxy()
         self.plant_type = plant_type
         #print(plant_type)
-        self.frames = import_folder(f'graphics/fruit/{plant_type}')
+        self.frames = self.loader_proxy.import_folder(f'graphics/fruit/{plant_type}')
         self.soil = soil
         self.check_watered = check_watered
         
@@ -54,14 +55,15 @@ class Plant(pygame.sprite.Sprite):
         
 class SoilLayer:
     def __init__(self, all_sprites, collision_sprites):
+        self.loader_proxy = FolderImportProxy()
         self.all_sprites = all_sprites
         self.collision_sprites = collision_sprites
         self.soil_sprites = pygame.sprite.Group()
         self.water_sprites = pygame.sprite.Group()
         self.plant_sprites = pygame.sprite.Group()
         
-        self.soil_surfs = import_folder_dict('graphics/soil')
-        self.water_surfs = import_folder('graphics/soil_water')
+        self.soil_surfs = self.loader_proxy.import_folder_dict('graphics/soil')
+        self.water_surfs = self.loader_proxy.import_folder('graphics/soil_water')
                 
         self.create_soil_grid()
         self.create_hit_rects()
