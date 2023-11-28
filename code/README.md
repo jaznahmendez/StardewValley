@@ -36,6 +36,6 @@ Candy Valley offers intuitive controls to make your gameplay smooth and enjoyabl
 
 - **Left Ctrl for Seed Use:** Carefully plant your selected seeds using the 'Left Ctrl' key.
 
-- **Enter to Sleep or Talk with the Merchant:** When the day is done, hit 'Enter' to rest or engage in a chat with the friendly merchant of Candy Valley.
+- **Enter to Sleep or Talk with the Merchant:** When the day is done, hit 'Enter' to rest or engage in a chat with the friendly merchant of Candy Valley. You have to be close to the bed/merchant to press Enter.
 
 Embark on your Candy Valley adventure today and experience the joy of farming, trading, and discovery in a world brimming with charm and excitement!
